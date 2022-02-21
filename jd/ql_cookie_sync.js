@@ -2,122 +2,53 @@
 青龙 docker 每日自动同步 boxjs cookie
 40 * * * https://raw.githubusercontent.com/dompling/Script/master/jd/ql_cookie_sync.js
  */
-
 const $ = new API('ql', true);
-
 const title = '🐉 通知提示';
-
+const ipAddress = $.read('ip') || '';
+const baseURL = `http://${ipAddress}`;
+let token = '';
+const headers = {
+  'Content-Type': `application/json;charset=UTF-8`,
+};
+const account = {
+  password: $.read('password'),
+  username: $.read('username'),
+};
 const jd_cookies = JSON.parse($.read('#CookiesJD') || '[]');
-
-let remark = {};
-try {
-  const _remark = JSON.parse(
-    JSON.parse($.read('#jd_ck_remark') || '{}').remark || '[]',
-  );
-
-  _remark.forEach((item) => {
-    remark[item.username] = item;
-  });
-} catch (e) {
-  console.log(e);
-}
-
-function getUsername(ck) {
-  if (!ck) return '';
-  return decodeURIComponent(ck.match(/pt_pin=(.+?);/)[1]);
-}
-
-async function getScriptUrl() {
-  const response = await $.http.get({
-    url: 'https://raw.githubusercontent.com/dompling/Script/master/jd/ql_api.js',
-  });
-  return response.body;
-}
-
+const jd_cookie1 = $.read('#CookieJD') || '';
+const jd_cookie2 = $.read('#CookieJD2') || '';
+$.log(`登陆：${ipAddress}`);
+$.log(`账号：${account.username}`);
 (async () => {
-  const ql_script = (await getScriptUrl()) || '';
-  eval(ql_script);
-  await $.ql.login();
-
-  const cookiesRes = await $.ql.select();
-  const ids = cookiesRes.data.map((item) => item.id);
-  await $.ql.delete(ids);
-  const wskeyRes = await $.ql.select('JD_WSCK');
-  await $.ql.delete(wskeyRes.data.map((item) => item.id));
-  $.log('清空 cookie 和 wskey');
-
-  const addData = [];
-  const wsCookie = [];
-  for (const jd_cookie of jd_cookies) {
-    const username = getUsername(jd_cookie.cookie);
-    let remarks = '';
-    if (remark[username]) {
-      remarks = remark[username].nickname;
-
-      remarks += `&${remark[username].remark}`;
-      if (remark[username].qywxUserId)
-        remarks += `&${remark[username].qywxUserId}`;
-    } else {
-      remarks = username;
-    }
-    addData.push({ name: 'JD_COOKIE', value: jd_cookie.cookie, remarks });
-    if (jd_cookie.wskey) {
-      wsCookie.push({
-        name: 'JD_WSCK',
-        remarks: remarks.split('&')[0],
-        value: `${jd_cookie.wskey}pt_pin=${encodeURI(username)};`,
-      });
-    }
-  }
-  if (addData.length) await $.ql.add(addData);
-  if (wsCookie.length) await $.ql.add(wsCookie);
-
-  const _cookiesRes = await $.ql.select();
-  const _ids = [];
-  for (let index = 0; index < _cookiesRes.data.length; index++) {
-    const item = _cookiesRes.data[index];
-    const response = await TotalBean(item.value);
-    if (response.retcode !== '0') _ids.push(item);
-  }
-
-  if (_ids.length > 0) {
-    const ids = _ids.map((item) => item.id);
-    console.log(
-      `过期账号：${_ids
-        .map((item) => item.remarks || getUsername(item.value))
-        .join(`\n`)}`,
-    );
-    await $.ql.disabled(ids);
-  }
-
-  const cookieText = jd_cookies.map((item) => item.userName).join(`\n`);
-  if ($.read('mute') !== 'true') {
-    return $.notify(title, '', `已同步账号： ${cookieText}`);
-  }
-})()
-  .catch((e) => {
-    $.log(JSON.stringify(e));
-  })
-  .finally(() => {
-    $.done();
+  const loginRes = await login();
+  if (loginRes.code === 400) return $.notify(title, '', loginRes.msg);
+  token = loginRes.token;
+  headers.Authorization = `Bearer ${token}`;
+  const cookiesRes = await getCookies();
+  const ids = cookiesRes.data.map(item => item._id);
+  await delCookie(ids);
+  $.log('清空 cookie');
+  const cookies = jd_cookies.map(item => item.cookie);
+  if (jd_cookie1) cookies.push(jd_cookie1);
+  if (jd_cookie2) cookies.push(jd_cookie2);
+  await addCookies(cookies);
+  const cookiesName = cookies.map(item => {
+    const userName = item.match(/pt_pin=(.+?);/)[1];
+    return decodeURIComponent(userName);
   });
-
-async function TotalBean(Cookie) {
-  const opt = {
-    url: 'https://me-api.jd.com/user_new/info/GetJDUserInfoUnion?sceneval=2&sceneval=2&g_login_type=1&g_ty=ls',
-    headers: {
-      cookie: Cookie,
-      Referer: 'https://home.m.jd.com/',
-    },
-  };
-  return $.http.get(opt).then((response) => {
-    try {
-      return JSON.parse(response.body);
-    } catch (e) {
-      return {};
-    }
-  });
-}
+  $.log(cookiesName);
+  const cookieText = cookiesName.join(`;`);
+  const newCookiesRes = await getCookies();
+  const disIds = newCookiesRes.data.filter(item => {
+    return item.nickname === '-';
+  }).map(item => item._id);
+  await disabledCookie(disIds);
+  return $.notify(title, '', `已同步账号： ${cookieText}`);
+})().catch((e) => {
+  $.log(JSON.stringify(e));
+}).finally(() => {
+  $.done();
+});
 
 function getURL(api, key = 'api') {
   return `${baseURL}/${key}/${api}`;
@@ -132,28 +63,30 @@ function login() {
   return $.http.post(opt).then((response) => JSON.parse(response.body));
 }
 
-function getCookies(searchValue = 'JD_COOKIE') {
-  const opt = { url: getURL(urlStr) + `?searchValue=${searchValue}`, headers };
+function getCookies() {
+  const opt = {url: getURL('cookies'), headers};
   return $.http.get(opt).then((response) => JSON.parse(response.body));
 }
 
 function addCookies(cookies) {
-  const opt = { url: getURL(urlStr), headers, body: JSON.stringify(cookies) };
+  const opt = {url: getURL('cookies'), headers, body: JSON.stringify(cookies)};
   return $.http.post(opt).then((response) => JSON.parse(response.body));
 }
 
 function delCookie(ids) {
-  const opt = { url: getURL(urlStr), headers, body: JSON.stringify(ids) };
+  const opt = {url: getURL(`cookies`), headers, body: JSON.stringify(ids)};
   return $.http.delete(opt).then((response) => JSON.parse(response.body));
 }
 
-function disabled(ids) {
+function disabledCookie(ids) {
   const opt = {
-    url: getURL(`${urlStr}/disable`),
+    url: getURL(`cookies/disable`),
     headers,
     body: JSON.stringify(ids),
   };
-  return $.http.put(opt).then((response) => JSON.parse(response.body));
+  $.http.put(opt).then((response) => {
+    return JSON.parse(response.body);
+  });
 }
 
 function ENV() {
@@ -164,22 +97,22 @@ function ENV() {
   const isNode = typeof require == 'function' && !isJSBox;
   const isRequest = typeof $request !== 'undefined';
   const isScriptable = typeof importModule !== 'undefined';
-  return { isQX, isLoon, isSurge, isNode, isJSBox, isRequest, isScriptable };
+  return {isQX, isLoon, isSurge, isNode, isJSBox, isRequest, isScriptable};
 }
 
-function HTTP(defaultOptions = { baseURL: '' }) {
-  const { isQX, isLoon, isSurge, isScriptable, isNode } = ENV();
+function HTTP(defaultOptions = {baseURL: ''}) {
+  const {isQX, isLoon, isSurge, isScriptable, isNode} = ENV();
   const methods = ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', 'PATCH'];
-  const URL_REGEX =
-    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
+  const URL_REGEX = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
 
   function send(method, options) {
-    options = typeof options === 'string' ? { url: options } : options;
+
+    options = typeof options === 'string' ? {url: options} : options;
     const baseURL = defaultOptions.baseURL;
     if (baseURL && !URL_REGEX.test(options.url || '')) {
       options.url = baseURL ? baseURL + options.url : options.url;
     }
-    options = { ...defaultOptions, ...options };
+    options = {...defaultOptions, ...options};
     const timeout = options.timeout;
     const events = {
       ...{
@@ -194,7 +127,7 @@ function HTTP(defaultOptions = { baseURL: '' }) {
 
     let worker;
     if (isQX) {
-      worker = $task.fetch({ method, ...options });
+      worker = $task.fetch({method, ...options});
     } else if (isLoon || isSurge || isNode) {
       worker = new Promise((resolve, reject) => {
         const request = isNode ? require('request') : $httpClient;
@@ -214,37 +147,33 @@ function HTTP(defaultOptions = { baseURL: '' }) {
       request.headers = options.headers;
       request.body = options.body;
       worker = new Promise((resolve, reject) => {
-        request
-          .loadString()
-          .then((body) => {
-            resolve({
-              statusCode: request.response.statusCode,
-              headers: request.response.headers,
-              body,
-            });
-          })
-          .catch((err) => reject(err));
+        request.loadString().then((body) => {
+          resolve({
+            statusCode: request.response.statusCode,
+            headers: request.response.headers,
+            body,
+          });
+        }).catch((err) => reject(err));
       });
     }
 
     let timeoutid;
     const timer = timeout
       ? new Promise((_, reject) => {
-          timeoutid = setTimeout(() => {
-            events.onTimeout();
-            return reject(
-              `${method} URL: ${options.url} exceeds the timeout ${timeout} ms`,
-            );
-          }, timeout);
-        })
+        timeoutid = setTimeout(() => {
+          events.onTimeout();
+          return reject(
+            `${method} URL: ${options.url} exceeds the timeout ${timeout} ms`,
+          );
+        }, timeout);
+      })
       : null;
 
-    return (
-      timer
+    return (timer
         ? Promise.race([timer, worker]).then((res) => {
-            clearTimeout(timeoutid);
-            return res;
-          })
+          clearTimeout(timeoutid);
+          return res;
+        })
         : worker
     ).then((resp) => events.onResponse(resp));
   }
@@ -258,7 +187,7 @@ function HTTP(defaultOptions = { baseURL: '' }) {
 }
 
 function API(name = 'untitled', debug = false) {
-  const { isQX, isLoon, isSurge, isNode, isJSBox, isScriptable } = ENV();
+  const {isQX, isLoon, isSurge, isNode, isJSBox, isScriptable} = ENV();
   return new (class {
     constructor(name, debug) {
       this.name = name;
@@ -281,12 +210,12 @@ function API(name = 'untitled', debug = false) {
       this.initCache();
 
       const delay = (t, v) =>
-        new Promise(function (resolve) {
+        new Promise(function(resolve) {
           setTimeout(resolve.bind(null, v), t);
         });
 
-      Promise.prototype.delay = function (t) {
-        return this.then(function (v) {
+      Promise.prototype.delay = function(t) {
+        return this.then(function(v) {
           return delay(t, v);
         });
       };
@@ -307,7 +236,7 @@ function API(name = 'untitled', debug = false) {
           this.node.fs.writeFileSync(
             fpath,
             JSON.stringify({}),
-            { flag: 'wx' },
+            {flag: 'wx'},
             (err) => console.log(err),
           );
         }
@@ -319,7 +248,7 @@ function API(name = 'untitled', debug = false) {
           this.node.fs.writeFileSync(
             fpath,
             JSON.stringify({}),
-            { flag: 'wx' },
+            {flag: 'wx'},
             (err) => console.log(err),
           );
           this.cache = {};
@@ -340,13 +269,13 @@ function API(name = 'untitled', debug = false) {
         this.node.fs.writeFileSync(
           `${this.name}.json`,
           data,
-          { flag: 'w' },
+          {flag: 'w'},
           (err) => console.log(err),
         );
         this.node.fs.writeFileSync(
           'root.json',
           JSON.stringify(this.root),
-          { flag: 'w' },
+          {flag: 'w'},
           (err) => console.log(err),
         );
       }

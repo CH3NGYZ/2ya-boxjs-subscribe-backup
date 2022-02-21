@@ -14,11 +14,9 @@ ScriptName:京东 ck 多账号备注 + 搜索
 5.搜索方式：设置关键字 下标（数组下标从 0 开始）、username（京东 ck 的 pin）、nickname（给京东账号设置的备注昵称）, status（正常|未登录）
 搜索示例：0,2Y,正常
 返回结果：返回下标为 0 的，返回 2Y (username|nickname),返回正常状态的
-task : 每日九点检查 ck 过期状态
-0 9 * * * https://raw.githubusercontent.com/dompling/Script/master/jd/jd_cookie_search.js
 
 */
-const noTitle = '登陆助手';
+
 const $ = new API('jd_ck_remark');
 $.msg = '';
 const APIKey = 'CookiesJD';
@@ -30,7 +28,7 @@ const cookiesRemark = JSON.parse($.read(remark_key) || '[]');
 const CookiesJD = JSON.parse($.read(CacheKey) || '[]');
 const CookieJD = $.read('#CookieJD');
 const CookieJD2 = $.read('#CookieJD2');
-const ckData = CookiesJD.map((item) => item.cookie);
+const ckData = CookiesJD.map(item => item.cookie);
 if (CookieJD) ckData.unshift(CookieJD);
 if (CookieJD2) ckData.unshift(CookieJD2);
 
@@ -38,14 +36,14 @@ console.log('初始化备注开始');
 console.log(`=========== 检测到京东账号：【${ckData.length}】个 ===========`);
 
 const ckRemarkFormat = {};
-cookiesRemark.forEach((item) => {
+cookiesRemark.forEach(item => {
   ckRemarkFormat[item.username] = item;
 });
 
 (async () => {
   const ckFormat = [];
   const notLogin = [];
-  let ckIndex = 1;
+  let ckIndex = 0;
   for (const cookie of ckData) {
     let username = cookie.match(/pt_pin=(.+?);/)[1];
     username = decodeURIComponent(username);
@@ -54,89 +52,70 @@ cookiesRemark.forEach((item) => {
     const response = await isLogin(cookie);
     const status = response.retcode === '0' ? '正常' : '未登录';
 
-    let avatar = '',
-      nickname = '',
-      isPlusVip = 0;
+    let avatar = '', nickname = '';
     if (response.retcode === '0') {
-      isPlusVip = response.data.userInfo.isPlusVip;
       avatar = response.data.userInfo.baseInfo.headImageUrl;
       nickname = response.data.userInfo.baseInfo.nickname;
-      console.log('帐号昵称：' + nickname);
     }
 
     console.log(`检查结束：账号【${ckIndex}】 ${username}【${status}】`);
     console.log('===================================');
-    let newRemark =
-      nickname ||
-      (ckRemarkFormat[username] ? ckRemarkFormat[username].remark : '');
 
     const item = {
       index: ckIndex,
       username,
       nickname,
-      qywxUserId: '',
       mobile: '',
       avatar,
       ...ckRemarkFormat[username],
-      isPlusVip,
       status,
-      remark: newRemark,
     };
     if (status === '未登录') notLogin.push(item);
     ckFormat.push(item);
     ckIndex++;
   }
-  $.msg = '检索完成，所有账号状态正常！';
+  $.msg = '初始化备注结束，boxjs 中修改备注';
   console.log($.msg);
   if (notLogin.length) {
-    console.log(
-      `----------------未登录账号【${notLogin.length}】----------------`,
-    );
-    console.log(
-      notLogin.map((item) => `${item.username}【${item.nickname}】`).join(`\n`),
-    );
-    $.msg = `未登录账号：\n ${notLogin
-      .map((item) => `账号【${item.index}】:${item.nickname || item.username}`)
-      .join(`\n`)}`;
+    console.log(`----------------未登录账号【${notLogin.length}】----------------`);
+    console.log(JSON.stringify(notLogin, null, `\t`));
+    $.msg = `未登录账号：\n ${notLogin.map(
+      item => `账号【${item.index}】:${item.nickname || item.username}`).join(
+      '\n')}`;
   }
   $.write(JSON.stringify(ckFormat, null, `\t`), remark_key);
   console.log(`检测到${keyword.length - 1}个搜索条件：${keyword.join(',')}`);
+
   if (keyword && keyword[0]) {
     console.log('开始搜索中');
-    const searchValue = ckFormat.filter((item, index) => {
-      return (
-        keyword.indexOf(`${index}`) > -1 ||
-        keyword.indexOf(item.username) > -1 ||
-        keyword.indexOf(item.nickname) > -1 ||
-        keyword.indexOf(item.status) > -1
-      );
-    });
+    const searchValue = ckFormat.filter(
+      (item, index) => {
+        return (
+          keyword.indexOf(`${index}`) > -1 ||
+          keyword.indexOf(item.username) > -1 ||
+          keyword.indexOf(item.nickname) > -1 ||
+          keyword.indexOf(item.status) > -1
+        );
+      });
     if (searchValue.length) {
       $.msg = `已找到搜索结果：\n`;
-      searchValue.forEach((item) => {
-        $.msg += `${item.nickname || item.username}:${item.mobile} 【${
-          item.status
-        }】\n`;
+      searchValue.forEach(item => {
+        $.msg += `${item.nickname ||
+        item.username}:${item.mobile} 【${item.status}】\n`;
       });
     } else {
       $.msg = '未找到相关 ck';
     }
     console.log($.msg);
-    if ($.read('mute') !== 'true') {
-      $.notify(noTitle, `关键字：${keyword}`, $.msg);
-    }
+    $.notify('京东 CK 查询', `关键字：${keyword}`, $.msg);
   } else {
-    if ($.read('mute') !== 'true') {
-      $.notify(noTitle, ``, $.msg);
-    }
+    $.notify('京东 CK 备注', ``, $.msg);
   }
-})()
-  .catch((e) => {
-    console.log(e);
-  })
-  .finally(() => {
-    $.done();
-  });
+})().catch(e => {
+  console.log(e);
+}).finally(() => {
+  $.done();
+});
 
 async function isLogin(Cookie) {
   const opt = {
@@ -174,23 +153,23 @@ function ENV() {
   };
 }
 
-function HTTP(
-  defaultOptions = {
-    baseURL: '',
-  },
-) {
-  const { isQX, isLoon, isSurge, isScriptable, isNode } = ENV();
+function HTTP(defaultOptions = {
+  baseURL: '',
+}) {
+  const {
+    isQX,
+    isLoon,
+    isSurge,
+    isScriptable,
+    isNode,
+  } = ENV();
   const methods = ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', 'PATCH'];
-  const URL_REGEX =
-    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
+  const URL_REGEX = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
 
   function send(method, options) {
-    options =
-      typeof options === 'string'
-        ? {
-            url: options,
-          }
-        : options;
+    options = typeof options === 'string' ? {
+      url: options,
+    } : options;
     const baseURL = defaultOptions.baseURL;
     if (baseURL && !URL_REGEX.test(options.url || '')) {
       options.url = baseURL ? baseURL + options.url : options.url;
@@ -239,38 +218,34 @@ function HTTP(
       request.headers = options.headers;
       request.body = options.body;
       worker = new Promise((resolve, reject) => {
-        request
-          .loadString()
-          .then((body) => {
-            resolve({
-              statusCode: request.response.statusCode,
-              headers: request.response.headers,
-              body,
-            });
-          })
-          .catch((err) => reject(err));
+        request.loadString().then((body) => {
+          resolve({
+            statusCode: request.response.statusCode,
+            headers: request.response.headers,
+            body,
+          });
+        }).catch((err) => reject(err));
       });
     }
 
     let timeoutid;
-    const timer = timeout
-      ? new Promise((_, reject) => {
-          timeoutid = setTimeout(() => {
-            events.onTimeout();
-            return reject(
-              `${method} URL: ${options.url} exceeds the timeout ${timeout} ms`,
-            );
-          }, timeout);
-        })
-      : null;
+    const timer = timeout ?
+      new Promise((_, reject) => {
+        timeoutid = setTimeout(() => {
+          events.onTimeout();
+          return reject(
+            `${method} URL: ${options.url} exceeds the timeout ${timeout} ms`,
+          );
+        }, timeout);
+      }) :
+      null;
 
-    return (
-      timer
-        ? Promise.race([timer, worker]).then((res) => {
-            clearTimeout(timeoutid);
-            return res;
-          })
-        : worker
+    return (timer ?
+        Promise.race([timer, worker]).then((res) => {
+          clearTimeout(timeoutid);
+          return res;
+        }) :
+        worker
     ).then((resp) => events.onResponse(resp));
   }
 
@@ -283,7 +258,14 @@ function HTTP(
 }
 
 function API(name = 'untitled', debug = false) {
-  const { isQX, isLoon, isSurge, isNode, isJSBox, isScriptable } = ENV();
+  const {
+    isQX,
+    isLoon,
+    isSurge,
+    isNode,
+    isJSBox,
+    isScriptable,
+  } = ENV();
   return new (class {
     constructor(name, debug) {
       this.name = name;
@@ -306,12 +288,12 @@ function API(name = 'untitled', debug = false) {
       this.initCache();
 
       const delay = (t, v) =>
-        new Promise(function (resolve) {
+        new Promise(function(resolve) {
           setTimeout(resolve.bind(null, v), t);
         });
 
-      Promise.prototype.delay = function (t) {
-        return this.then(function (v) {
+      Promise.prototype.delay = function(t) {
+        return this.then(function(v) {
           return delay(t, v);
         });
       };
@@ -330,8 +312,7 @@ function API(name = 'untitled', debug = false) {
         if (!this.node.fs.existsSync(fpath)) {
           this.node.fs.writeFileSync(
             fpath,
-            JSON.stringify({}),
-            {
+            JSON.stringify({}), {
               flag: 'wx',
             },
             (err) => console.log(err),
@@ -344,8 +325,7 @@ function API(name = 'untitled', debug = false) {
         if (!this.node.fs.existsSync(fpath)) {
           this.node.fs.writeFileSync(
             fpath,
-            JSON.stringify({}),
-            {
+            JSON.stringify({}), {
               flag: 'wx',
             },
             (err) => console.log(err),
@@ -367,16 +347,14 @@ function API(name = 'untitled', debug = false) {
       if (isNode) {
         this.node.fs.writeFileSync(
           `${this.name}.json`,
-          data,
-          {
+          data, {
             flag: 'w',
           },
           (err) => console.log(err),
         );
         this.node.fs.writeFileSync(
           'root.json',
-          JSON.stringify(this.root, null, 2),
-          {
+          JSON.stringify(this.root, null, 2), {
             flag: 'w',
           },
           (err) => console.log(err),
@@ -450,8 +428,7 @@ function API(name = 'untitled', debug = false) {
         $notification.post(
           title,
           subtitle,
-          content + `${mediaURL ? '\n多媒体:' + mediaURL : ''}`,
-          {
+          content + `${mediaURL ? '\n多媒体:' + mediaURL : ''}`, {
             url: openURL,
           },
         );
