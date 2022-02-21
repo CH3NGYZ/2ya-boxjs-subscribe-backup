@@ -20,7 +20,7 @@ hostname = api.vc.bilibili.com
 【Surge脚本配置】:
 ===================
 [Script]
-获取哔哩哔哩 = type=http-request,pattern=^https:\/\/api.vc.bilibili.com\/dynamic_svr\/v1\/dynamic_svr\/dynamic_new,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/BiliBili/bilibili.cookie.js,script-update-interval=0
+获取哔哩哔哩 = type=http-request,pattern=^https:\/\/api\.vc\.bilibili\.com\/link_setting\/v1\/link_setting\/bilibili_uid,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/BiliBili/bilibili.cookie.js,script-update-interval=0
 
 
 
@@ -28,7 +28,7 @@ hostname = api.vc.bilibili.com
 【Loon脚本配置】:
 ===================
 [Script]
-http-request https:\/\/api.vc.bilibili.com\/dynamic_svr\/v1\/dynamic_svr\/dynamic_new tag=获取哔哩哔哩, script-path=https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/BiliBili/bilibili.cookie.js
+http-request ^https:\/\/api\.vc\.bilibili\.com\/link_setting\/v1\/link_setting\/bilibili_uid tag=获取哔哩哔哩, script-path=https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/BiliBili/bilibili.cookie.js
 
 
 ===================
@@ -36,7 +36,7 @@ http-request https:\/\/api.vc.bilibili.com\/dynamic_svr\/v1\/dynamic_svr\/dynami
 ===================
 
 [rewrite_local]
-https:\/\/api.vc.bilibili.com\/dynamic_svr\/v1\/dynamic_svr\/dynamic_new  url script-request-header https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/BiliBili/bilibili.cookie.js
+^https:\/\/api\.vc\.bilibili\.com\/link_setting\/v1\/link_setting\/bilibili_uid url script-request-header https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/BiliBili/bilibili.cookie.js
 
  */
 const CacheKey = "cookie";
@@ -47,7 +47,7 @@ function GetCookie() {
   try {
     if (
       $request.headers &&
-      $request.url.indexOf("v1/dynamic_svr/dynamic_new") > -1
+      $request.url.indexOf("/v1/link_setting/bilibili_uid") > -1
     ) {
       const ck = $request.headers["Cookie"] || $request.headers["cookie"];
       if (!$.read(CacheKey)) {

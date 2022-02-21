@@ -3,14 +3,12 @@
   "name": "DomplingYaYa 应用订阅",
   "author": "@DomplingYaYa",
   "icon": "https://avatars3.githubusercontent.com/u/23498579?s=460&u=1e87605e4abc4e6ecf3edd8b1d730227f54db4d4&v=4",
-  "repo": "https://github.com/cyz0105/2ya-boxjs-subscribe-backup",
+  "repo": "https://github.com/dompling/Script",
   "apps": [
     {
       "id": "10010Ck",
-      "name": "中国联通 Cookie",
-      "keys": [
-        "@YaYa_10010.cookie"
-      ],
+      "name": "中国联通",
+      "keys": ["@YaYa_10010.cookie"],
       "author": "@dompling",
       "icons": [
         "https://raw.githubusercontent.com/Orz-3/mini/master/Alpha/10010.png",
@@ -18,16 +16,51 @@
       ]
     },
     {
-      "id": "gistBackup",
-      "name": "gist 备份",
-      "keys": [
-        "@gist.token",
-        "@gist.username"
+      "id": "xmSports",
+      "name": "多账号运动",
+      "keys": ["@xmSports.token", "@xmSports.minStep", "@xmSports.maxStep"],
+      "author": "@dompling",
+      "settings": [
+        {
+          "id": "@xmSports.minStep",
+          "name": "最小步数",
+          "val": "20000",
+          "type": "text",
+          "placeholder": "最小步数",
+          "desc": "必填"
+        },
+        {
+          "id": "@xmSports.maxStep",
+          "name": "最大步数",
+          "val": "23000",
+          "type": "text",
+          "placeholder": "最大步数",
+          "desc": "必填"
+        }
       ],
+      "icons": [
+        "https://raw.githubusercontent.com/58xinian/icon/master/xmyd.png",
+        "https://raw.githubusercontent.com/58xinian/icon/master/xmyd.png"
+      ],
+      "scripts": [
+        {
+          "name": "初始账号",
+          "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/xmSportsCookieTask.js"
+        },
+        {
+          "name": "同步设备",
+          "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/xmSports.js"
+        }
+      ]
+    },
+    {
+      "id": "gistBackup",
+      "name": "Gist备份",
+      "keys": ["@gist.token", "@gist.username"],
       "author": "@dompling",
       "icons": [
-        "https://raw.githubusercontent.com/58xinian/icon/master/Github.png",
-        "https://raw.githubusercontent.com/58xinian/icon/master/Github.png"
+        "https://raw.githubusercontent.com/Former-Years/icon/master/github-bf.png",
+        "https://raw.githubusercontent.com/Former-Years/icon/master/github-bf.png"
       ],
       "descs_html": [
         "Token的获取方式:",
@@ -63,225 +96,9 @@
       ]
     },
     {
-      "id": "ZXTrains",
-      "name": "智行火车行程提醒",
-      "keys": [
-        "@ZXTrains.travels"
-      ],
-      "author": "@dompling",
-      "descs_html": [
-        "使用智行火车票 app，在未出行中获取该列表。"
-      ],
-      "repo": "https://github.com/cyz0105/2ya-boxjs-subscribe-backup/blob/main/ZXTrians/ZXTrians.js",
-      "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/ZXTrians/ZXTrains.js",
-      "icons": [
-        "https://raw.githubusercontent.com/Orz-3/mini/master/zxhc.png",
-        "https://raw.githubusercontent.com/Orz-3/task/master/zxhc.png"
-      ]
-    },
-    {
-      "id": "gov",
-      "name": "每日健康打卡",
-      "keys": [
-        "@gov.body.phone",
-        "@gov.body.city",
-        "@gov.body.xzqhdm",
-        "@gov.body.isContactPatient",
-        "@gov.body.symptom",
-        "@gov.body.temperature"
-      ],
-      "descs_html": [
-        "小程序：国家政务服务",
-        "打卡半自动，进入小程序之后会自动打卡上报健康信息",
-        "城市的编码可使用【<a href=\"https://raw.githubusercontent.com/modood/Administrative-divisions-of-China/master/dist/areas.json\">城市区域</a>】获取对应的数据Code，并按照此脚本注释进行配置。"
-      ],
-      "settings": [
-        {
-          "id": "@gov.body.phone",
-          "name": "手机号",
-          "val": null,
-          "type": "text",
-          "rows": 2,
-          "placeholder": "联系方式",
-          "desc": "必填"
-        },
-        {
-          "id": "@gov.body.city",
-          "name": "省市区",
-          "val": null,
-          "type": "text",
-          "rows": 2,
-          "placeholder": "地址",
-          "desc": "必填"
-        },
-        {
-          "id": "@gov.body.xzqhdm",
-          "name": "定位城市编码",
-          "val": "",
-          "type": "text",
-          "rows": 2,
-          "placeholder": "510105",
-          "desc": "必填"
-        },
-        {
-          "id": "@gov.body.symptom",
-          "name": "健康状况",
-          "val": "1",
-          "type": "text",
-          "rows": 2,
-          "placeholder": " 1 没有出现症状",
-          "desc": "必填"
-        },
-        {
-          "id": "@gov.body.isContactPatient",
-          "name": "是否接触新冠",
-          "val": "2",
-          "type": "text",
-          "rows": 2,
-          "placeholder": "2 不确定",
-          "desc": "必填"
-        },
-        {
-          "id": "@gov.body.temperature",
-          "name": "体温",
-          "val": null,
-          "type": "text",
-          "rows": 2,
-          "placeholder": "默认随机上报健康区间体温",
-          "desc": "非必填"
-        }
-      ],
-      "icons": [],
-      "author": "@dompling",
-      "repo": "https://github.com/cyz0105/2ya-boxjs-subscribe-backup/blob/main/gov/gov.js",
-      "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/gov/gov.js"
-    },
-    {
-      "id": "zk789",
-      "name": "自考打卡",
-      "keys": [
-        "@zk789.data.userName",
-        "@zk789.data.sex",
-        "@zk789.data.mobile",
-        "@zk789.data.idCard",
-        "@zk789.data.address",
-        "@zk789.data.spareuser",
-        "@zk789.data.spareid",
-        "@zk789.headers.Referer",
-        "@zk789.headers.Cookie"
-      ],
-      "settings": [
-        {
-          "id": "@zk789.headers.Cookie",
-          "name": "Cookie",
-          "val": null,
-          "type": "text",
-          "rows": 2,
-          "placeholder": "Cookie",
-          "desc": "必填"
-        },
-        {
-          "id": "@zk789.headers.Referer",
-          "name": "Referer",
-          "val": null,
-          "type": "text",
-          "rows": 2,
-          "placeholder": "链接来源",
-          "desc": "必填"
-        },
-        {
-          "id": "@zk789.data.userName",
-          "name": "用户名",
-          "val": null,
-          "type": "text",
-          "rows": 2,
-          "placeholder": "用户名",
-          "desc": "必填"
-        },
-        {
-          "id": "@zk789.data.address",
-          "name": "地址",
-          "val": null,
-          "type": "text",
-          "rows": 2,
-          "placeholder": "地址",
-          "desc": "必填"
-        },
-        {
-          "id": "@zk789.data.sex",
-          "name": "性别",
-          "val": null,
-          "type": "text",
-          "rows": 2,
-          "placeholder": "性别",
-          "desc": "必填"
-        },
-        {
-          "id": "@zk789.data.idCard",
-          "name": "身份证",
-          "val": null,
-          "type": "text",
-          "rows": 2,
-          "placeholder": "身份证",
-          "desc": "必填"
-        },
-        {
-          "id": "@zk789.data.mobile",
-          "name": "手机号",
-          "val": null,
-          "type": "text",
-          "rows": 2,
-          "placeholder": "手机号",
-          "desc": "必填"
-        },
-        {
-          "id": "@zk789.data.spareuser",
-          "name": "用户 spareCode",
-          "val": null,
-          "type": "text",
-          "rows": 2,
-          "placeholder": "spareCode",
-          "desc": "必填"
-        },
-        {
-          "id": "@zk789.data.spareid",
-          "name": "用户 ID",
-          "val": null,
-          "type": "text",
-          "rows": 2,
-          "placeholder": "用户 ID",
-          "desc": "必填"
-        }
-      ],
-      "icons": [
-        "http://wx.qlogo.cn/mmhead/Q3auHgzwzM7GCsADbkOIE4pOYW0MUa3gojhTV8G5trloMPNWHNHCibg/0",
-        "http://wx.qlogo.cn/mmhead/Q3auHgzwzM7GCsADbkOIE4pOYW0MUa3gojhTV8G5trloMPNWHNHCibg/0"
-      ],
-      "author": "@dompling",
-      "repo": "https://github.com/cyz0105/2ya-boxjs-subscribe-backup/blob/main/gov/gov.js",
-      "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/gov/gov.js"
-    },
-    {
-      "id": "xiaomiyp",
-      "name": "小米有品",
-      "keys": [
-        "@xiaomiyp.cookie"
-      ],
-      "icons": [
-        "https://raw.githubusercontent.com/Orz-3/task/master/xiaomiyp.png",
-        "https://raw.githubusercontent.com/Orz-3/task/master/xiaomiyp.png"
-      ],
-      "author": "@dompling",
-      "repo": "https://github.com/cyz0105/2ya-boxjs-subscribe-backup/blob/main/xiaomiyp/xiaomiyp.js",
-      "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/xiaomiyp/xiaomiyp.js"
-    },
-    {
       "id": "bilibili",
       "name": "哔哩哔哩关注中心/番剧监控",
-      "keys": [
-        "@bilibili.cookie",
-        "@BiliBiliMonitor.subscriptions"
-      ],
+      "keys": ["@bilibili.cookie", "@BiliBiliMonitor.subscriptions"],
       "icons": [
         "https://raw.githubusercontent.com/Orz-3/task/master/bilibili.png",
         "https://raw.githubusercontent.com/Orz-3/task/master/bilibili.png"
@@ -291,21 +108,9 @@
       "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/BiliBiliMonitor/BiliBiliMonitor.js"
     },
     {
-      "id": "DJT",
-      "name": "毒汤日历",
-      "keys": [
-        "@DJT.unid"
-      ],
-      "icons": [],
-      "author": "@dompling",
-      "repo": "https://github.com/cyz0105/2ya-boxjs-subscribe-backup/blob/main/DJT/djt.cookie.js"
-    },
-    {
       "id": "scriptable",
       "name": "桌面组件",
-      "keys": [
-        "scriptable"
-      ],
+      "keys": ["scriptable"],
       "icons": [
         "https://scriptablejs.gitee.io/store/favicon.ico",
         "https://scriptablejs.gitee.io/store/favicon.ico"
@@ -315,19 +120,50 @@
     },
     {
       "id": "ql",
-      "name": "青龙 Cookie 同步",
+      "name": "青龙同步",
       "keys": [
         "@ql.ip",
+        "@ql.client_id",
+        "@ql.client_secret",
         "@ql.username",
-        "@ql.password"
+        "@ql.password",
+        "@ql.env",
+        "@ql.mute",
+        "@ql.is_pwd"
       ],
       "settings": [
+        {
+          "id": "@ql.mute",
+          "name": "静音",
+          "val": false,
+          "type": "boolean",
+          "desc": "同步时，不会执行通知提示"
+        },
+        {
+          "id": "@ql.is_pwd",
+          "name": "开启密码登陆",
+          "val": false,
+          "type": "boolean",
+          "desc": "同步时，优先使用密码登陆"
+        },
         {
           "id": "@ql.ip",
           "name": "青龙登陆的域名或IP:端口号",
           "val": "",
           "type": "text",
           "placeholder": "111.21.0.32:5700"
+        },
+        {
+          "id": "@ql.client_id",
+          "name": "应用 Client ID",
+          "val": "",
+          "type": "text"
+        },
+        {
+          "id": "@ql.client_secret",
+          "name": "应用 Client Secret",
+          "val": "",
+          "type": "text"
         },
         {
           "id": "@ql.username",
@@ -343,25 +179,40 @@
         }
       ],
       "icons": [
-        "https://qinglong.whyour.cn/qinglong.png",
-        "https://qinglong.whyour.cn/qinglong.png"
+        "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/image/1.jpeg",
+        "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/image/1.jpeg"
       ],
       "author": "@dompling",
       "repo": "https://github.com/cyz0105/2ya-boxjs-subscribe-backup/blob/main/jd/ql_cookie_sync.js",
-      "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/jd/ql_cookie_sync.js",
+      "scripts": [
+        {
+          "name": "青龙同步到BoxJS(京东 Ck)",
+          "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/jd/ql_sync_box.js"
+        },
+        {
+          "name": "BoxJS同步到青龙(京东 Ck)",
+          "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/jd/ql_cookie_sync.js"
+        },
+        {
+          "name": "备份环境变量",
+          "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/jd/ql_env_back.js"
+        },
+        {
+          "name": "恢复备份环境变量",
+          "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/jd/ql_env_upload.js"
+        }
+      ],
       "descs_html": [
         "青龙 docker 的安装方式请移步 tg 频道",
         "青龙 docker 作者仓库：【<a href=\"https://github.com/whyour\">github</a>】",
-        "青龙 docker 频道：【<a href=\"https://t.me/qiongqiya\">电报频道</a>】"
+        "青龙 docker 频道：【<a href=\"https://t.me/qiongqiya\">电报频道</a>】",
+        "应用client_id,client_secret（openapi）方式；请去 设置->应用 中添加相关参数，优先以 openapi 方式同步"
       ]
     },
     {
       "id": "JD_Cookies_remark",
       "name": "登陆助手",
-      "keys": [
-        "@jd_ck_remark.remark",
-        "@jd_ck_remark.rem"
-      ],
+      "keys": ["CookieIndex", "@jd_ck_remark.remark", "@jd_ck_remark.mute"],
       "descs_html": [
         "请勿随意在输入框修改内容，建议通过脚本去获取cookie，若要修改，请按照JSON 格式修改（<a href=\"https://www.bejson.com/json/format\">可使用此JSON校验</a> ，或点击右上角按钮🔘进行校验(如有弹窗提示则为异常JSON)）。",
         "脚本地址【<a href=\"https://jdsharedresourcescdn.azureedge.net/jdresource/JD_extra_cookie.js\">京东多 CK获取</a>】,并按照此脚本注释进行配置",
@@ -370,6 +221,22 @@
         "可以根据 下标、username、nickname、status 字段检索京东多账号 ck"
       ],
       "settings": [
+        {
+          "id": "@jd_ck_remark.mute",
+          "name": "静音",
+          "val": false,
+          "type": "boolean",
+          "desc": "不会执行通知提示"
+        },
+        {
+          "id": "CookieIndex",
+          "name": "默认账号",
+          "val": 0,
+          "type": "text",
+          "autoGrow": false,
+          "rows": 2,
+          "placeholder": "cookie 下标（0）"
+        },
         {
           "id": "@jd_ck_remark.keyword",
           "name": "检索条件",
@@ -399,17 +266,15 @@
     },
     {
       "id": "JD_Cookies",
-      "name": "多 Ck 管理",
-      "keys": [
-        "CookiesJD",
-        "cks_get_mute"
-      ],
+      "name": "京东账号",
+      "keys": ["CookiesJD", "cks_get_mute"],
       "descs_html": [
         "请勿随意在输入框修改内容，建议通过脚本去获取cookie，若要修改，请按照JSON 格式修改（<a href=\"https://www.bejson.com/json/format\">可使用此JSON校验</a> ，或点击右上角按钮🔘进行校验(如有弹窗提示则为异常JSON)）。",
         "示例：[{\"userName\":\"jd_xxx\",\"cookie\":\"pt_key=AAJ;pt_pin=jd_xxx;\"},{\"userName\":\"jd_66\",\"cookie\":\"pt_key=AAJ;pt_pin=jd_66;\"}]",
         "脚本地址【<a href=\"https://jdsharedresourcescdn.azureedge.net/jdresource/JD_extra_cookie.js\">京东多 CK获取</a>】,并按照此脚本注释进行配置",
         "使用方式【<a href=\"https://home.m.jd.com/myJd/newhome.action\">个人中心</a>】获取对应的数据Code",
-        "注：如与NobyDa的京东cookie重复，建议在此处删除重复的cookie"
+        "注1：如与NobyDa的京东cookie重复，建议在此处删除重复的cookie",
+        "注2：删除条件，是用来清除不需要的ck，条件值为京东 ck 的第几个，如第一个：1，第二个：2；多个请使用,分割。删除ck 脚本不会去清理野比的ck，请谨慎使用。删除成功之后，请手动刷新 boxjs"
       ],
       "settings": [
         {
@@ -420,11 +285,18 @@
           "desc": "更新时，不会执行通知提示"
         },
         {
+          "id": "del_condition",
+          "name": "删除条件",
+          "val": "",
+          "type": "text",
+          "desc": "输入的条件,运行一次之后则会清空条件"
+        },
+        {
           "id": "CookiesJD",
           "name": "CK 列表",
           "val": "",
           "type": "textarea",
-          "autoGrow": true,
+          "autoGrow": false,
           "rows": 8,
           "desc": "CK 列表 (JSON 格式)"
         }
@@ -435,15 +307,21 @@
       ],
       "author": "@dompling",
       "repo": "https://github.com/cyz0105/2ya-boxjs-subscribe-backup/blob/main/jd/JD_extra.js",
-      "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/jd/JD_extra_sign.js"
+      "scripts": [
+        {
+          "name": "京东签到",
+          "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/jd/JD_extra_sign.js"
+        },
+        {
+          "name": "删除相关 ck",
+          "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/jd/jd_ck_del.js"
+        }
+      ]
     },
     {
       "id": "JD_jr_Cookies",
       "name": "金融领豆",
-      "keys": [
-        "@jd_jr.cookies",
-        "@jd_jr.bodys"
-      ],
+      "keys": ["@jd_jr.cookies", "@jd_jr.bodys"],
       "descs_html": [
         "请勿随意在输入框修改内容，只能通过脚本去获取cookie，若要修改，请按照JSON 格式修改（<a href=\"https://www.bejson.com/json/format\">可使用此JSON校验</a> ，或点击右上角按钮🔘进行校验(如有弹窗提示则为异常JSON)）。",
         "仅能修改phoneNumber内容",
@@ -471,10 +349,7 @@
     {
       "id": "oneSay",
       "name": "每天一句",
-      "keys": [
-        "@oneSay.mediaImg",
-        "@oneSay.username"
-      ],
+      "keys": ["@oneSay.mediaImg", "@oneSay.username"],
       "icons": [
         "https://raw.githubusercontent.com/Orz-3/mini/master/calendar.png",
         "https://raw.githubusercontent.com/Orz-3/task/master/calendar.png"
@@ -506,7 +381,7 @@
     },
     {
       "id": "birthday",
-      "name": "生日倒计时",
+      "name": "生日计时",
       "keys": [
         "@birthday.mediaImg",
         "@birthday.username",
