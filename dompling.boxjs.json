@@ -6,119 +6,6 @@
   "repo": "https://github.com/dompling/Script",
   "apps": [
     {
-      "id": "10010Ck",
-      "name": "中国联通",
-      "keys": ["@YaYa_10010.cookie"],
-      "author": "@dompling",
-      "icons": [
-        "https://raw.githubusercontent.com/Orz-3/mini/master/Alpha/10010.png",
-        "https://raw.githubusercontent.com/Orz-3/mini/master/Color/10010.png"
-      ]
-    },
-    {
-      "id": "xmSports",
-      "name": "多账号运动",
-      "keys": ["@xmSports.token", "@xmSports.minStep", "@xmSports.maxStep"],
-      "author": "@dompling",
-      "settings": [
-        {
-          "id": "@xmSports.minStep",
-          "name": "最小步数",
-          "val": "20000",
-          "type": "text",
-          "placeholder": "最小步数",
-          "desc": "必填"
-        },
-        {
-          "id": "@xmSports.maxStep",
-          "name": "最大步数",
-          "val": "23000",
-          "type": "text",
-          "placeholder": "最大步数",
-          "desc": "必填"
-        }
-      ],
-      "icons": [
-        "https://raw.githubusercontent.com/58xinian/icon/master/xmyd.png",
-        "https://raw.githubusercontent.com/58xinian/icon/master/xmyd.png"
-      ],
-      "scripts": [
-        {
-          "name": "初始账号",
-          "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/xmSportsCookieTask.js"
-        },
-        {
-          "name": "同步设备",
-          "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/xmSports.js"
-        }
-      ]
-    },
-    {
-      "id": "gistBackup",
-      "name": "Gist备份",
-      "keys": ["@gist.token", "@gist.username"],
-      "author": "@dompling",
-      "icons": [
-        "https://raw.githubusercontent.com/Former-Years/icon/master/github-bf.png",
-        "https://raw.githubusercontent.com/Former-Years/icon/master/github-bf.png"
-      ],
-      "descs_html": [
-        "Token的获取方式:",
-        "头像菜单->\n      Settings ->\n      Developer settings ->\n      Personal access tokens ->\n      Generate new token ->\n      在里面找到 gist 勾选提交"
-      ],
-      "scripts": [
-        {
-          "name": "备份 Gist",
-          "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/gist/backup.js"
-        },
-        {
-          "name": "从 Gist 恢复",
-          "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/gist/restore.js"
-        }
-      ],
-      "settings": [
-        {
-          "id": "@gist.username",
-          "name": "用户名",
-          "val": null,
-          "type": "text",
-          "placeholder": "github 用户名",
-          "desc": "必填"
-        },
-        {
-          "id": "@gist.token",
-          "name": "Personal access tokens",
-          "val": null,
-          "type": "text",
-          "placeholder": "github personal access tokens",
-          "desc": "必填"
-        }
-      ]
-    },
-    {
-      "id": "bilibili",
-      "name": "哔哩哔哩关注中心/番剧监控",
-      "keys": ["@bilibili.cookie", "@BiliBiliMonitor.subscriptions"],
-      "icons": [
-        "https://raw.githubusercontent.com/Orz-3/task/master/bilibili.png",
-        "https://raw.githubusercontent.com/Orz-3/task/master/bilibili.png"
-      ],
-      "author": "@dompling",
-      "repo": "https://github.com/cyz0105/2ya-boxjs-subscribe-backup/blob/main/BiliBili/bilibili.cookie.js",
-      "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/BiliBiliMonitor/BiliBiliMonitor.js"
-    },
-    {
-      "id": "scriptable",
-      "name": "桌面组件",
-      "keys": ["scriptable"],
-      "icons": [
-        "https://scriptablejs.gitee.io/store/favicon.ico",
-        "https://scriptablejs.gitee.io/store/favicon.ico"
-      ],
-      "author": "@dompling",
-      "repo": ""
-    },
-    {
       "id": "ql",
       "name": "青龙同步",
       "keys": [
@@ -182,24 +69,12 @@
         "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/image/1.jpeg",
         "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/image/1.jpeg"
       ],
-      "author": "@dompling",
+      "author": "@Chyz",
       "repo": "https://github.com/cyz0105/2ya-boxjs-subscribe-backup/blob/main/jd/ql_cookie_sync.js",
       "scripts": [
         {
           "name": "青龙同步到BoxJS(京东 Ck)",
           "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/jd/ql_sync_box.js"
-        },
-        {
-          "name": "BoxJS同步到青龙(京东 Ck)",
-          "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/jd/ql_cookie_sync.js"
-        },
-        {
-          "name": "备份环境变量",
-          "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/jd/ql_env_back.js"
-        },
-        {
-          "name": "恢复备份环境变量",
-          "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/jd/ql_env_upload.js"
         }
       ],
       "descs_html": [
@@ -209,10 +84,16 @@
         "应用client_id,client_secret（openapi）方式；请去 设置->应用 中添加相关参数，优先以 openapi 方式同步"
       ]
     },
+
+
     {
       "id": "JD_Cookies_remark",
       "name": "登陆助手",
-      "keys": ["CookieIndex", "@jd_ck_remark.remark", "@jd_ck_remark.mute"],
+      "keys": [
+        "CookieIndex",
+        "@jd_ck_remark.remark",
+        "@jd_ck_remark.mute"
+      ],
       "descs_html": [
         "请勿随意在输入框修改内容，建议通过脚本去获取cookie，若要修改，请按照JSON 格式修改（<a href=\"https://www.bejson.com/json/format\">可使用此JSON校验</a> ，或点击右上角按钮🔘进行校验(如有弹窗提示则为异常JSON)）。",
         "脚本地址【<a href=\"https://jdsharedresourcescdn.azureedge.net/jdresource/JD_extra_cookie.js\">京东多 CK获取</a>】,并按照此脚本注释进行配置",
@@ -260,14 +141,17 @@
         "https://raw.githubusercontent.com/Orz-3/mini/master/jd.png",
         "https://raw.githubusercontent.com/Orz-3/task/master/jd.png"
       ],
-      "author": "@dompling",
+      "author": "@Chyz",
       "repo": "https://github.com/cyz0105/2ya-boxjs-subscribe-backup/blob/main/jd/jd_cookie_search.js",
       "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/jd/jd_cookie_search.js"
     },
     {
       "id": "JD_Cookies",
       "name": "京东账号",
-      "keys": ["CookiesJD", "cks_get_mute"],
+      "keys": [
+        "CookiesJD",
+        "cks_get_mute"
+      ],
       "descs_html": [
         "请勿随意在输入框修改内容，建议通过脚本去获取cookie，若要修改，请按照JSON 格式修改（<a href=\"https://www.bejson.com/json/format\">可使用此JSON校验</a> ，或点击右上角按钮🔘进行校验(如有弹窗提示则为异常JSON)）。",
         "示例：[{\"userName\":\"jd_xxx\",\"cookie\":\"pt_key=AAJ;pt_pin=jd_xxx;\"},{\"userName\":\"jd_66\",\"cookie\":\"pt_key=AAJ;pt_pin=jd_66;\"}]",
@@ -305,7 +189,7 @@
         "https://raw.githubusercontent.com/Orz-3/mini/master/jd.png",
         "https://raw.githubusercontent.com/Orz-3/task/master/jd.png"
       ],
-      "author": "@dompling",
+      "author": "@Chyz",
       "repo": "https://github.com/cyz0105/2ya-boxjs-subscribe-backup/blob/main/jd/JD_extra.js",
       "scripts": [
         {
@@ -321,7 +205,10 @@
     {
       "id": "JD_jr_Cookies",
       "name": "金融领豆",
-      "keys": ["@jd_jr.cookies", "@jd_jr.bodys"],
+      "keys": [
+        "@jd_jr.cookies",
+        "@jd_jr.bodys"
+      ],
       "descs_html": [
         "请勿随意在输入框修改内容，只能通过脚本去获取cookie，若要修改，请按照JSON 格式修改（<a href=\"https://www.bejson.com/json/format\">可使用此JSON校验</a> ，或点击右上角按钮🔘进行校验(如有弹窗提示则为异常JSON)）。",
         "仅能修改phoneNumber内容",
@@ -342,131 +229,9 @@
         "https://raw.githubusercontent.com/Orz-3/mini/master/jd.png",
         "https://raw.githubusercontent.com/Orz-3/task/master/jd.png"
       ],
-      "author": "@dompling",
+      "author": "@Chyz",
       "repo": "https://github.com/cyz0105/2ya-boxjs-subscribe-backup/blob/main/jd/jd_jr_cookie.js",
       "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/jd/jd_jr_sign.js"
-    },
-    {
-      "id": "oneSay",
-      "name": "每天一句",
-      "keys": ["@oneSay.mediaImg", "@oneSay.username"],
-      "icons": [
-        "https://raw.githubusercontent.com/Orz-3/mini/master/calendar.png",
-        "https://raw.githubusercontent.com/Orz-3/task/master/calendar.png"
-      ],
-      "author": "@dompling",
-      "repo": "https://github.com/cyz0105/2ya-boxjs-subscribe-backup/blob/main/oneSay/oneSay.js",
-      "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/oneSay/oneSay.js",
-      "settings": [
-        {
-          "id": "@oneSay.username",
-          "name": "姓名",
-          "val": null,
-          "type": "text",
-          "autoGrow": false,
-          "rows": 2,
-          "placeholder": "必填姓名"
-        },
-        {
-          "id": "@oneSay.mediaImg",
-          "name": "内容媒体图",
-          "val": null,
-          "type": "text",
-          "autoGrow": false,
-          "rows": 2,
-          "placeholder": "系统配送图，或者自定义",
-          "desc": "非必填"
-        }
-      ]
-    },
-    {
-      "id": "birthday",
-      "name": "生日计时",
-      "keys": [
-        "@birthday.mediaImg",
-        "@birthday.username",
-        "@birthday.time",
-        "@birthday.pDefault",
-        "@birthday.pCycle",
-        "@birthday.nongli",
-        "@birthday.eday",
-        "@birthday.loveWords"
-      ],
-      "icons": [
-        "https://raw.githubusercontent.com/Orz-3/mini/master/birthday.png",
-        "https://raw.githubusercontent.com/Orz-3/task/master/birthday.png"
-      ],
-      "author": "@dompling",
-      "repo": "https://github.com/cyz0105/2ya-boxjs-subscribe-backup/blob/main/birthdayCountDown/index.js",
-      "script": "https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/birthdayCountDown/index.js",
-      "settings": [
-        {
-          "id": "@birthday.nongli",
-          "name": "农历",
-          "val": true,
-          "type": "boolean"
-        },
-        {
-          "id": "@birthday.loveWords",
-          "name": "情话",
-          "val": true,
-          "type": "boolean"
-        },
-        {
-          "id": "@birthday.username",
-          "name": "姓名",
-          "val": null,
-          "type": "text",
-          "autoGrow": false,
-          "rows": 2,
-          "placeholder": "必填姓名"
-        },
-        {
-          "id": "@birthday.time",
-          "name": "出生年月",
-          "val": null,
-          "type": "text",
-          "rows": 2,
-          "placeholder": "必填内容，出身年月格式为：年-月-日。"
-        },
-        {
-          "id": "@birthday.mediaImg",
-          "name": "内容媒体图",
-          "val": null,
-          "type": "text",
-          "autoGrow": false,
-          "rows": 2,
-          "placeholder": "默认取的随机推送图片",
-          "desc": "非必填"
-        },
-        {
-          "id": "@birthday.eday",
-          "name": "情侣相识日期",
-          "val": null,
-          "type": "text",
-          "rows": 2,
-          "placeholder": "相识的日期",
-          "desc": "非必填"
-        },
-        {
-          "id": "@birthday.pDefault",
-          "name": "生理期",
-          "val": null,
-          "type": "text",
-          "rows": 2,
-          "placeholder": "最近一次生理期时间",
-          "desc": "非必填"
-        },
-        {
-          "id": "@birthday.pCycle",
-          "name": "生理期区间",
-          "val": null,
-          "type": "text",
-          "rows": 2,
-          "placeholder": "生理期区间，最近一次生理期开始计算。",
-          "desc": "非必填；计算不准时，请重填生理期。"
-        }
-      ]
     }
   ]
 }
