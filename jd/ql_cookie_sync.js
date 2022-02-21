@@ -1,6 +1,6 @@
 /*
 青龙 docker 每日自动同步 boxjs cookie
-40 * * * https://raw.githubusercontent.com/dompling/Script/master/jd/ql_cookie_sync.js
+40 * * * https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/jd/ql_cookie_sync.js
  */
 const $ = new API('ql', true);
 const title = '🐉 通知提示';

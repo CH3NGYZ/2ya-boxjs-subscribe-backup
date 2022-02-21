@@ -1,137 +1,139 @@
 /*
 
 Author: 2Ya
-Github: https://github.com/domping
-ScriptName:京东 ck 多账号备注 + 搜索
-==================================
-给京东账号添加一个备注吧 O(∩_∩)O哈哈~ （适合账号多账号昵称混乱的用户）
-==================================
-使用方法：
-1.添加 boxjs 订阅：https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/dompling.boxjs.json
-2.在应用中找到 dompling -> 京东账号 ck 检索
-3.点击右上角运行按钮初始化京东 ck 数据
-4.初始完成之后，给各个账号添加备注就能愉快的搜索你的京东 ck 了。
-5.搜索方式：设置关键字 下标（数组下标从 0 开始）、username（京东 ck 的 pin）、nickname（给京东账号设置的备注昵称）, status（正常|未登录）
-搜索示例：0,2Y,正常
-返回结果：返回下标为 0 的，返回 2Y (username|nickname),返回正常状态的
+Github: https://www.github.com/dompling
+===========================
+gist 恢复备份：请先去 boxjs 设置完善 gist 信息，
+token 获取方式 :
+      头像菜单->
+      Settings ->
+      Developer settings ->
+      Personal access tokens ->
+      Generate new token ->
+      在里面找到 gist 勾选提交
+===========================
 
-*/
 
-const $ = new API('jd_ck_remark');
+[task]
+
+# 备份
+0 10 * * * https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/gist/backup.js
+# 恢复
+5 10 * * * https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/gist/restore.js
+
+ */
+
+const $ = new API('gist');
+
+// 存储`用户偏好`
+$.KEY_usercfgs = 'chavy_boxjs_userCfgs';
+// 存储`应用会话`
+$.KEY_sessions = 'chavy_boxjs_sessions';
+// 存储`应用订阅缓存`
+$.KEY_app_subCaches = 'chavy_boxjs_app_subCaches';
+// 存储`备份索引`
+$.KEY_backups = 'chavy_boxjs_backups';
+// 存储`当前会话` (配合切换会话, 记录当前切换到哪个会话)
+$.KEY_cursessions = 'chavy_boxjs_cur_sessions';
+
+$.token = $.read('token');
+$.username = $.read('username');
+$.boxjsDomain = $.read('#boxjs_host');
+$.cacheKey = 'BoxJS-Data';
 $.msg = '';
-const APIKey = 'CookiesJD';
-const CacheKey = `#${APIKey}`;
-const remark_key = `remark`;
-const searchKey = 'keyword';
-const keyword = ($.read(searchKey) || '').split(',');
-const cookiesRemark = JSON.parse($.read(remark_key) || '[]');
-const CookiesJD = JSON.parse($.read(CacheKey) || '[]');
-const CookieJD = $.read('#CookieJD');
-const CookieJD2 = $.read('#CookieJD2');
-const ckData = CookiesJD.map(item => item.cookie);
-if (CookieJD) ckData.unshift(CookieJD);
-if (CookieJD2) ckData.unshift(CookieJD2);
 
-console.log('初始化备注开始');
-console.log(`=========== 检测到京东账号：【${ckData.length}】个 ===========`);
+const cacheArr = {
+  datas: {label: '用户数据'},
+  'usercfgs': {label: '用户偏好', key: $.KEY_usercfgs},
+  'sessions': {label: '应用会话', key: $.KEY_sessions},
+  'curSessions': {label: '当前会话', key: $.KEY_cursessions},
+  'globalbaks': {label: '备份索引', key: $.KEY_backups},
+  'appSubCaches': {label: '应用订阅缓存', key: $.KEY_app_subCaches},
+};
 
-const ckRemarkFormat = {};
-cookiesRemark.forEach(item => {
-  ckRemarkFormat[item.username] = item;
+$.http = new HTTP({
+  baseURL: `https://api.github.com`,
+  headers: {
+    Authorization: `token ${$.token}`,
+    Accept: 'application/vnd.github.v3+json',
+    'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1',
+  },
 });
-
 (async () => {
-  const ckFormat = [];
-  const notLogin = [];
-  let ckIndex = 0;
-  for (const cookie of ckData) {
-    let username = cookie.match(/pt_pin=(.+?);/)[1];
-    username = decodeURIComponent(username);
-    console.log('===================================');
-    console.log(`检查开始：账号 ${username} 【登陆状态】`);
-    const response = await isLogin(cookie);
-    const status = response.retcode === '0' ? '正常' : '未登录';
+  if (!$.token || !$.username) throw '请去 boxjs 完善信息';
+  const gistList = await getGist();
 
-    let avatar = '', nickname = '';
-    if (response.retcode === '0') {
-      avatar = response.data.userInfo.baseInfo.headImageUrl;
-      nickname = response.data.userInfo.baseInfo.nickname;
-    }
-
-    console.log(`检查结束：账号【${ckIndex}】 ${username}【${status}】`);
-    console.log('===================================');
-
-    const item = {
-      index: ckIndex,
-      username,
-      nickname,
-      mobile: '',
-      avatar,
-      ...ckRemarkFormat[username],
-      status,
-    };
-    if (status === '未登录') notLogin.push(item);
-    ckFormat.push(item);
-    ckIndex++;
-  }
-  $.msg = '初始化备注结束，boxjs 中修改备注';
-  console.log($.msg);
-  if (notLogin.length) {
-    console.log(`----------------未登录账号【${notLogin.length}】----------------`);
-    console.log(JSON.stringify(notLogin, null, `\t`));
-    $.msg = `未登录账号：\n ${notLogin.map(
-      item => `账号【${item.index}】:${item.nickname || item.username}`).join(
-      '\n')}`;
-  }
-  $.write(JSON.stringify(ckFormat, null, `\t`), remark_key);
-  console.log(`检测到${keyword.length - 1}个搜索条件：${keyword.join(',')}`);
-
-  if (keyword && keyword[0]) {
-    console.log('开始搜索中');
-    const searchValue = ckFormat.filter(
-      (item, index) => {
-        return (
-          keyword.indexOf(`${index}`) > -1 ||
-          keyword.indexOf(item.username) > -1 ||
-          keyword.indexOf(item.nickname) > -1 ||
-          keyword.indexOf(item.status) > -1
-        );
-      });
-    if (searchValue.length) {
-      $.msg = `已找到搜索结果：\n`;
-      searchValue.forEach(item => {
-        $.msg += `${item.nickname ||
-        item.username}:${item.mobile} 【${item.status}】\n`;
-      });
+  for (const cacheArrKey in cacheArr) {
+    const item = cacheArr[cacheArrKey];
+    const saveKey = `${$.cacheKey}_${cacheArrKey}`;
+    const isBackUp = gistList.find(item => !!item.files[saveKey]);
+    if (isBackUp) {
+      console.log(`${item.label}：已找到备份-开始恢复到设备中...`);
+      const response = await getBackGist(isBackUp);
+      let content = response.files[saveKey].content;
+      try {
+        content = JSON.parse(content);
+        if (!item.key) {
+          const datas = {};
+          for (const contentKey in content) {
+            const dataItem = content[contentKey];
+            if (/^@/.test(contentKey)) {
+              const [, objkey, path] = /^@(.*?)\.(.*?)$/.exec(contentKey);
+              if (!datas[objkey]) datas[objkey] = {};
+              datas[objkey][path] = dataItem;
+            } else {
+              datas[contentKey] = dataItem;
+            }
+          }
+          for (const key in datas) {
+            saveBoxJSData({
+              key,
+              val: typeof datas[key] === 'string' ? datas[key] : JSON.stringify(
+                datas[key]),
+            });
+          }
+        } else {
+          saveBoxJSData({key: item.key, val: JSON.stringify(content)});
+        }
+        $.msg += `${item.label}：备份恢复成功 \n`;
+        console.log(`${item.label}：备份恢复成功`);
+      } catch (e) {
+        $.msg += `${item.label}：备份数据异常 \n`;
+      }
     } else {
-      $.msg = '未找到相关 ck';
+      $.msg += `${item.label}：未找到备份，请先备份 \n`;
+      console.log(`${item.label}：未找到备份，请先备份`);
     }
-    console.log($.msg);
-    $.notify('京东 CK 查询', `关键字：${keyword}`, $.msg);
-  } else {
-    $.notify('京东 CK 备注', ``, $.msg);
   }
-})().catch(e => {
-  console.log(e);
+  console.log('所有备份恢复成功');
+})().then(() => {
+  $.notify('gist 备份恢复', '', `${$.username}：\n${$.msg}`);
+}).catch(e => {
+  $.log(e);
 }).finally(() => {
   $.done();
 });
 
-async function isLogin(Cookie) {
-  const opt = {
-    url: 'https://me-api.jd.com/user_new/info/GetJDUserInfoUnion?sceneval=2&sceneval=2&g_login_type=1&g_ty=ls',
-    headers: {
-      cookie: Cookie,
-      Referer: 'https://home.m.jd.com/',
-    },
-  };
-  return $.http.get(opt).then((response) => {
-    try {
-      return JSON.parse(response.body);
-    } catch (e) {
-      return {};
-    }
-  });
+function getGistUrl(api) {
+  return `${api}`;
+}
+
+function getGist() {
+  return $.http.get({url: getGistUrl(`/users/${$.username}/gists`)}).then(
+    response => JSON.parse(response.body));
+}
+
+function getBackGist(backup) {
+  return $.http.get({url: getGistUrl(`/gists/${backup.id}`)}).
+    then(response => JSON.parse(response.body));
+}
+
+function saveBoxJSData(data) {
+  if (Array.isArray(data)) {
+    data.forEach((dat) => $.write(dat.val, `#${dat.key}`));
+  } else {
+    $.write(data.val, `#${data.key}`);
+  }
 }
 
 function ENV() {

@@ -5,7 +5,7 @@ Github: https://github.com/domping
 ===================
 下载京东金融，进入app获取
 ===================
-[task] 0 0 * * * https://raw.githubusercontent.com/dompling/Script/master/jd/jd_jr_sign.js
+[task] 0 0 * * * https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/jd/jd_jr_sign.js
 ===================
 [MITM]
 hostname = ms.jr.jd.com
@@ -13,20 +13,20 @@ hostname = ms.jr.jd.com
 【Surge脚本配置】:
 ===================
 [Script]
-获取京东金融领豆Cookie = type=http-request,pattern=^https?:\/\/ms\.jr\.jd\.com\/gw\/generic\/uc\/newna\/m\/userstat,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/dompling/Script/master/jd/jd_jr_cookie.js,script-update-interval=0
+获取京东金融领豆Cookie = type=http-request,pattern=^https?:\/\/ms\.jr\.jd\.com\/gw\/generic\/uc\/newna\/m\/userstat,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/jd/jd_jr_cookie.js,script-update-interval=0
 
 ===================
 【Loon脚本配置】:
 ===================
 [Script]
-http-request ^https?:\/\/ms\.jr\.jd\.com\/gw\/generic\/uc\/newna\/m\/userstat tag=获取京东金融领豆Cookie, script-path=https://raw.githubusercontent.com/dompling/Script/master/jd/jd_jr_cookie.js,requires-body=true
+http-request ^https?:\/\/ms\.jr\.jd\.com\/gw\/generic\/uc\/newna\/m\/userstat tag=获取京东金融领豆Cookie, script-path=https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/jd/jd_jr_cookie.js,requires-body=true
 
 ===================
 【 QX  脚本配置 】 :
 ===================
 
 [rewrite_local]
-^https?:\/\/ms\.jr\.jd\.com\/gw\/generic\/uc\/newna\/m\/userstat url script-request-body https://raw.githubusercontent.com/dompling/Script/master/jd/jd_jr_cookie.js
+^https?:\/\/ms\.jr\.jd\.com\/gw\/generic\/uc\/newna\/m\/userstat url script-request-body https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/jd/jd_jr_cookie.js
 
  */
 

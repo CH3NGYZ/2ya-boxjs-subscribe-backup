@@ -1,77 +1,132 @@
-/*
-青龙 docker 每日自动同步 boxjs cookie
-40 * * * https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/jd/ql_cookie_sync.js
+/**
+ 图标
+# 获取方式: 进入待出行列表查看
+
+[task_local]
+30 * * * https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/ZXTrains/ZXTrains.js
+
+(1). Quantumult X
+[MITM]
+hostname=m.ctrip.com
+[rewrite_local]
+
+^https:\/\/m.ctrip.com\/restapi\/soa2\/17644\/json\/getWaitTravelOrders* url script-respones-body https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/ZXTrians/update.trians.js
+
+(2). Loon
+[MITM]
+hostname=m.ctrip.com
+[Script]
+http-response ^https:\/\/m.ctrip.com\/restapi\/soa2\/17644\/json\/getWaitTravelOrders* script-path=https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/ZXTrians/update.trians.js, require-body=true
+
+(3). Surge
+[MITM]
+hostname=m.ctrip.com
+[Script]
+type=http-response, pattern=^https:\/\/m.ctrip.com\/restapi\/soa2\/17644\/json\/getWaitTravelOrders*, script-path=https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/ZXTrians/update.trians.js, require-body=true
+
  */
 
-const $ = new API('ql', true);
+$ = new API("ZXTrains", true);
 
-const title = '🐉 通知提示';
+const title = "🚆智行火车";
 
-let envs = [];
-try {
-  envs = JSON.parse($.read('env') || '[]');
-} catch (e) {
-  console.log(e);
-}
-
-async function getScriptUrl() {
-  const response = await $.http.get({
-    url: 'https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/jd/ql_api.js',
-  });
-  return response.body;
+function dateToUnixTimestamp(str) {
+  const dates = new Date(str.replace(/-/g, "/"));
+  return parseInt(dates.getTime());
 }
 
 (async () => {
-  if (!envs.length) return $.notify(title, '同步失败', '环境变量错误');
-
-  const ql_script = (await getScriptUrl()) || '';
-  eval(ql_script);
-  await $.ql.login();
-
-  const response = await $.ql.select('');
-  const delIds = response.data.map((item) => item.id);
-  await $.ql.delete(delIds);
-  console.log(`=======================清空环境变量=======================`);
-  await $.ql.add(
-    envs.map((env) => ({
-      name: env.name,
-      value: env.value,
-      remarks: env.remarks,
-    })),
-  );
-  console.log(`=======================恢复环境变量=======================`);
-  if ($.read('mute') !== 'true') {
-    return $.notify(title, '同步成功', `同步个数：${envs.length} 个`);
-  }
+  const response = $.read("travels");
+  response.forEach((item) => {
+    message(item.orders[0]);
+  });
 })()
   .catch((e) => {
-    $.log(JSON.stringify(e));
+    console.log(e);
   })
   .finally(() => {
-    $.done();
+    $.done({});
   });
 
+function timeAgo(o) {
+  var n = new Date().getTime();
+  var f = n - o;
+  var bs = f >= 0 ? "前" : "后"; //判断时间点是在当前时间的 之前 还是 之后
+  f = Math.abs(f);
+  if (f < 6e4) {
+    return "刚刚";
+  } //小于60秒,刚刚
+  if (f < 36e5) {
+    return parseInt(f / 6e4) + "分钟" + bs;
+  } //小于1小时,按分钟
+  if (f < 864e5) {
+    return parseInt(f / 36e5) + "小时" + bs;
+  } //小于1天按小时
+  if (f < 2592e6) {
+    return parseInt(f / 864e5) + "天" + bs;
+  } //小于1个月(30天),按天数
+  if (f < 31536e6) {
+    return parseInt(f / 2592e6) + "个月" + bs;
+  } //小于1年(365天),按月数
+  return parseInt(f / 31536e6) + "年" + bs; //大于365天,按年算
+}
+
+function message(d) {
+  let { trainFlights, timeDesc } = d;
+  const data = trainFlights[0];
+  const passengerInfos = data.passengerInfos[0];
+  const fromDate = dateToUnixTimestamp(data.fromTime);
+  const toDate = dateToUnixTimestamp(data.toTime);
+  const nowDate = parseInt(new Date().getTime());
+  if (fromDate - nowDate < 1000 * 60 * 60 * 24 && nowDate < toDate) {
+    if (nowDate > fromDate && nowDate < toDate) {
+      timeDesc = "列车运行中";
+    } else {
+      timeDesc = `距离发车还有${timeAgo(fromDate)}`;
+    }
+    $.notify(
+      title,
+      `⏰${timeDesc}`,
+      `
+    ⚙类型：${data.title}
+    ⛩票口：${data.checkInDesc || "到站自信查询"}
+    🛎提醒: ${data.tripName}
+    ⏰开始：${data.fromTime}
+    ⏰结束：${data.toTime}
+    🏷地点：${data.fromStation} - ${data.toStation}
+    💰价格：${data.price}
+    💺座位：${passengerInfos.seatCategory} ${passengerInfos.carriageNo} ${
+        passengerInfos.seatNo
+      } 
+    `
+    );
+  }
+
+  if (fromDate - nowDate > 1000 * 60 * 60 * 24)
+    console.log(`${data.title} 未到提醒时间`);
+  if (nowDate > toDate) console.log(`${data.title} 当前车次已经   `);
+}
+
 function ENV() {
-  const isQX = typeof $task !== 'undefined';
-  const isLoon = typeof $loon !== 'undefined';
-  const isSurge = typeof $httpClient !== 'undefined' && !isLoon;
-  const isJSBox = typeof require == 'function' && typeof $jsbox != 'undefined';
-  const isNode = typeof require == 'function' && !isJSBox;
-  const isRequest = typeof $request !== 'undefined';
-  const isScriptable = typeof importModule !== 'undefined';
+  const isQX = typeof $task !== "undefined";
+  const isLoon = typeof $loon !== "undefined";
+  const isSurge = typeof $httpClient !== "undefined" && !isLoon;
+  const isJSBox = typeof require == "function" && typeof $jsbox != "undefined";
+  const isNode = typeof require == "function" && !isJSBox;
+  const isRequest = typeof $request !== "undefined";
+  const isScriptable = typeof importModule !== "undefined";
   return { isQX, isLoon, isSurge, isNode, isJSBox, isRequest, isScriptable };
 }
 
-function HTTP(defaultOptions = { baseURL: '' }) {
+function HTTP(defaultOptions = { baseURL: "" }) {
   const { isQX, isLoon, isSurge, isScriptable, isNode } = ENV();
-  const methods = ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', 'PATCH'];
-  const URL_REGEX =
-    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
+  const methods = ["GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH"];
+  const URL_REGEX = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
 
   function send(method, options) {
-    options = typeof options === 'string' ? { url: options } : options;
+    options = typeof options === "string" ? { url: options } : options;
     const baseURL = defaultOptions.baseURL;
-    if (baseURL && !URL_REGEX.test(options.url || '')) {
+    if (baseURL && !URL_REGEX.test(options.url || "")) {
       options.url = baseURL ? baseURL + options.url : options.url;
     }
     options = { ...defaultOptions, ...options };
@@ -92,7 +147,7 @@ function HTTP(defaultOptions = { baseURL: '' }) {
       worker = $task.fetch({ method, ...options });
     } else if (isLoon || isSurge || isNode) {
       worker = new Promise((resolve, reject) => {
-        const request = isNode ? require('request') : $httpClient;
+        const request = isNode ? require("request") : $httpClient;
         request[method.toLowerCase()](options, (err, response, body) => {
           if (err) reject(err);
           else
@@ -128,31 +183,30 @@ function HTTP(defaultOptions = { baseURL: '' }) {
           timeoutid = setTimeout(() => {
             events.onTimeout();
             return reject(
-              `${method} URL: ${options.url} exceeds the timeout ${timeout} ms`,
+              `${method} URL: ${options.url} exceeds the timeout ${timeout} ms`
             );
           }, timeout);
         })
       : null;
 
-    return (
-      timer
-        ? Promise.race([timer, worker]).then((res) => {
-            clearTimeout(timeoutid);
-            return res;
-          })
-        : worker
+    return (timer
+      ? Promise.race([timer, worker]).then((res) => {
+          clearTimeout(timeoutid);
+          return res;
+        })
+      : worker
     ).then((resp) => events.onResponse(resp));
   }
 
   const http = {};
   methods.forEach(
     (method) =>
-      (http[method.toLowerCase()] = (options) => send(method, options)),
+      (http[method.toLowerCase()] = (options) => send(method, options))
   );
   return http;
 }
 
-function API(name = 'untitled', debug = false) {
+function API(name = "untitled", debug = false) {
   const { isQX, isLoon, isSurge, isNode, isJSBox, isScriptable } = ENV();
   return new (class {
     constructor(name, debug) {
@@ -164,7 +218,7 @@ function API(name = 'untitled', debug = false) {
 
       this.node = (() => {
         if (isNode) {
-          const fs = require('fs');
+          const fs = require("fs");
 
           return {
             fs,
@@ -191,19 +245,19 @@ function API(name = 'untitled', debug = false) {
 
     // initialize cache
     initCache() {
-      if (isQX) this.cache = JSON.parse($prefs.valueForKey(this.name) || '{}');
+      if (isQX) this.cache = JSON.parse($prefs.valueForKey(this.name) || "{}");
       if (isLoon || isSurge)
-        this.cache = JSON.parse($persistentStore.read(this.name) || '{}');
+        this.cache = JSON.parse($persistentStore.read(this.name) || "{}");
 
       if (isNode) {
         // create a json for root cache
-        let fpath = 'root.json';
+        let fpath = "root.json";
         if (!this.node.fs.existsSync(fpath)) {
           this.node.fs.writeFileSync(
             fpath,
             JSON.stringify({}),
-            { flag: 'wx' },
-            (err) => console.log(err),
+            { flag: "wx" },
+            (err) => console.log(err)
           );
         }
         this.root = {};
@@ -214,13 +268,13 @@ function API(name = 'untitled', debug = false) {
           this.node.fs.writeFileSync(
             fpath,
             JSON.stringify({}),
-            { flag: 'wx' },
-            (err) => console.log(err),
+            { flag: "wx" },
+            (err) => console.log(err)
           );
           this.cache = {};
         } else {
           this.cache = JSON.parse(
-            this.node.fs.readFileSync(`${this.name}.json`),
+            this.node.fs.readFileSync(`${this.name}.json`)
           );
         }
       }
@@ -235,21 +289,21 @@ function API(name = 'untitled', debug = false) {
         this.node.fs.writeFileSync(
           `${this.name}.json`,
           data,
-          { flag: 'w' },
-          (err) => console.log(err),
+          { flag: "w" },
+          (err) => console.log(err)
         );
         this.node.fs.writeFileSync(
-          'root.json',
+          "root.json",
           JSON.stringify(this.root),
-          { flag: 'w' },
-          (err) => console.log(err),
+          { flag: "w" },
+          (err) => console.log(err)
         );
       }
     }
 
     write(data, key) {
       this.log(`SET ${key}`);
-      if (key.indexOf('#') !== -1) {
+      if (key.indexOf("#") !== -1) {
         key = key.substr(1);
         if (isSurge || isLoon) {
           return $persistentStore.write(data, key);
@@ -268,7 +322,7 @@ function API(name = 'untitled', debug = false) {
 
     read(key) {
       this.log(`READ ${key}`);
-      if (key.indexOf('#') !== -1) {
+      if (key.indexOf("#") !== -1) {
         key = key.substr(1);
         if (isSurge || isLoon) {
           return $persistentStore.read(key);
@@ -286,7 +340,7 @@ function API(name = 'untitled', debug = false) {
 
     delete(key) {
       this.log(`DELETE ${key}`);
-      if (key.indexOf('#') !== -1) {
+      if (key.indexOf("#") !== -1) {
         key = key.substr(1);
         if (isSurge || isLoon) {
           return $persistentStore.write(null, key);
@@ -304,26 +358,26 @@ function API(name = 'untitled', debug = false) {
     }
 
     // notification
-    notify(title, subtitle = '', content = '', options = {}) {
-      const openURL = options['open-url'];
-      const mediaURL = options['media-url'];
+    notify(title, subtitle = "", content = "", options = {}) {
+      const openURL = options["open-url"];
+      const mediaURL = options["media-url"];
 
       if (isQX) $notify(title, subtitle, content, options);
       if (isSurge) {
         $notification.post(
           title,
           subtitle,
-          content + `${mediaURL ? '\n多媒体:' + mediaURL : ''}`,
+          content + `${mediaURL ? "\n多媒体:" + mediaURL : ""}`,
           {
             url: openURL,
-          },
+          }
         );
       }
       if (isLoon) {
         let opts = {};
-        if (openURL) opts['openUrl'] = openURL;
-        if (mediaURL) opts['mediaUrl'] = mediaURL;
-        if (JSON.stringify(opts) == '{}') {
+        if (openURL) opts["openUrl"] = openURL;
+        if (mediaURL) opts["mediaUrl"] = mediaURL;
+        if (JSON.stringify(opts) == "{}") {
           $notification.post(title, subtitle, content);
         } else {
           $notification.post(title, subtitle, content, opts);
@@ -332,13 +386,13 @@ function API(name = 'untitled', debug = false) {
       if (isNode || isScriptable) {
         const content_ =
           content +
-          (openURL ? `\n点击跳转: ${openURL}` : '') +
-          (mediaURL ? `\n多媒体: ${mediaURL}` : '');
+          (openURL ? `\n点击跳转: ${openURL}` : "") +
+          (mediaURL ? `\n多媒体: ${mediaURL}` : "");
         if (isJSBox) {
-          const push = require('push');
+          const push = require("push");
           push.schedule({
             title: title,
-            body: (subtitle ? subtitle + '\n' : '') + content_,
+            body: (subtitle ? subtitle + "\n" : "") + content_,
           });
         } else {
           console.log(`${title}\n${subtitle}\n${content_}\n\n`);
@@ -356,7 +410,7 @@ function API(name = 'untitled', debug = false) {
     }
 
     error(msg) {
-      console.log('ERROR: ' + msg);
+      console.log("ERROR: " + msg);
     }
 
     wait(millisec) {
@@ -367,7 +421,7 @@ function API(name = 'untitled', debug = false) {
       if (isQX || isLoon || isSurge) {
         $done(value);
       } else if (isNode && !isJSBox) {
-        if (typeof $context !== 'undefined') {
+        if (typeof $context !== "undefined") {
           $context.headers = value.headers;
           $context.statusCode = value.statusCode;
           $context.body = value.body;
