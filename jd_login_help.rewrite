@@ -1,6 +1,4 @@
-[rewrite_local]
+hostname= plogin.m.jd.com, home.m.jd.com
+
 ^https?:\/\/home\.m\.jd\.com\/userinfom\/QueryUserInfoM url script-response-body https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/jd/jd_login_help2.js
 ^https?:\/\/plogin\.m\.jd\.com\/login\/login url script-response-body https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/jd/jd_login_help2.js
-
-[mitm]
-hostname= plogin.m.jd.com, home.m.jd.com
