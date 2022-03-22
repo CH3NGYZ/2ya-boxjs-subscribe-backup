@@ -1,7 +1,0 @@
-#!name=2Ya iOS Tasks Module
-#!desc=iOS 任务 模块配置
-#!system=ios
-
-[Script]
-gist 备份 = type=cron,cronexp=0 */12 * * *,script-path=https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/gist/backup.js,script-update-interval=0
-天天领豆 = type=cron,cronexp=0 0 * * *,script-path=https://raw.githubusercontent.com/cyz0105/2ya-boxjs-subscribe-backup/main/jd/jd_jr_sign.js,script-update-interval=0
